@@ -1,8 +1,7 @@
 import pandas as pd
 import torch
-from sklearn.model_selection import train_test_split
-from models.kan_model import create_model
 import torch.nn as nn
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
@@ -10,21 +9,18 @@ from sklearn.metrics import (
     f1_score
 )
 
-
-# Load recommender dataset
+# Load dataset
 
 data = pd.read_csv(
     "recommender_dataset.csv"
 )
 
-
-# Hardware ke hisab se sample
+# Same sample size
 
 data = data.sample(
     10000,
     random_state=42
 )
-
 
 # Features
 
@@ -38,11 +34,9 @@ X = data[
 ]
 ]
 
-
 # Target
 
 y = data["target"]
-
 
 # Tensor conversion
 
@@ -56,7 +50,6 @@ y = torch.tensor(
     dtype=torch.float32
 )
 
-
 # Train Test Split
 
 X_train, X_test, y_train, y_test = train_test_split(
@@ -66,25 +59,27 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=42
 )
 
-
 print("Train Shape:")
 print(X_train.shape)
 
 print("Test Shape:")
 print(X_test.shape)
 
+# MLP Model
 
-# Model
-
-model = create_model()
+model = nn.Sequential(
+    nn.Linear(5, 16),
+    nn.ReLU(),
+    nn.Linear(16, 8),
+    nn.ReLU(),
+    nn.Linear(8, 1)
+)
 
 print(model)
-
 
 # Loss
 
 criterion = nn.BCEWithLogitsLoss()
-
 
 # Optimizer
 
@@ -92,7 +87,6 @@ optimizer = torch.optim.Adam(
     model.parameters(),
     lr=0.001
 )
-
 
 # Training
 
@@ -102,10 +96,10 @@ for epoch in range(epochs):
 
     optimizer.zero_grad()
 
-    output = model(X_train)
+    outputs = model(X_train)
 
     loss = criterion(
-        output.squeeze(),
+        outputs.squeeze(),
         y_train
     )
 
@@ -116,7 +110,6 @@ for epoch in range(epochs):
     print(
         f"Epoch {epoch+1}/{epochs} Loss: {loss.item()}"
     )
-
 
 # Testing
 
@@ -145,12 +138,8 @@ with torch.no_grad():
 
     print(
         f"Recall: {recall_score(y_true, y_pred):.4f}"
-        
     )
 
     print(
         f"F1 Score: {f1_score(y_true, y_pred):.4f}"
     )
-    torch.save(model.state_dict(), "fashion_kan_model.pth")
-
-print("Model Saved Successfully!")

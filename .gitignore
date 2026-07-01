@@ -1,4 +1,8 @@
 venv/
 __pycache__/
-*.csv
+
+data/fashion_images/
+recommender_dataset.csv
+image_embeddings.csv
+processed_data.csv
 model/
